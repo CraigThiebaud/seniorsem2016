@@ -12,13 +12,9 @@ EnemyTank = function (index, game, player, bullets) {
     this.nextFire = 0;
     this.alive = true;
 
-    this.shadow = game.add.sprite(x, y, 'enemy', 'shadow');
     this.tank = game.add.sprite(x, y, 'enemy', 'tank1');
-    this.turret = game.add.sprite(x, y, 'enemy', 'turret');
 
-    this.shadow.anchor.set(0.5);
     this.tank.anchor.set(0.5);
-    this.turret.anchor.set(0.3, 0.5);
 
     this.tank.name = index.toString();
     game.physics.enable(this.tank, Phaser.Physics.ARCADE);
@@ -40,9 +36,7 @@ EnemyTank.prototype.damage = function() {
     {
         this.alive = false;
 
-        this.shadow.kill();
         this.tank.kill();
-        this.turret.kill();
 
         return true;
     }
@@ -53,13 +47,6 @@ EnemyTank.prototype.damage = function() {
 
 EnemyTank.prototype.update = function() {
 
-    this.shadow.x = this.tank.x;
-    this.shadow.y = this.tank.y;
-    this.shadow.rotation = this.tank.rotation;
-
-    //this.turret.x = this.tank.x;
-    //this.turret.y = this.tank.y;
-    //this.turret.rotation = this.game.physics.arcade.angleBetween(this.tank, this.player);
 
     if (this.game.physics.arcade.distanceBetween(this.tank, this.player) < 300)
     {
@@ -77,14 +64,14 @@ EnemyTank.prototype.update = function() {
 
 };
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(1900, 1050, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function preload () {
 
-    //game.load.atlas('tank', 'assets/games/tanks/tanks.png', 'assets/games/tanks/tanks.json');
     //game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
     game.load.image('tank', 'assets/games/tanks/ship.png');
-    game.load.image('logo', 'assets/games/tanks/logo.png');
+    game.load.image('enemy', 'assets/games/asteroids/ship.png');
+    //game.load.image('logo', 'assets/games/tanks/logo.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
     game.load.image('earth', 'assets/games/tanks/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/games/tanks/explosion.png', 64, 64, 23);
@@ -93,9 +80,7 @@ function preload () {
 
 var land;
 
-var shadow;
 var tank;
-var turret;
 
 var enemies;
 var enemyBullets;
@@ -103,10 +88,11 @@ var enemiesTotal = 0;
 var enemiesAlive = 0;
 var explosions;
 
-var logo;
+//var logo;
 
 var currentSpeed = 0;
 var cursors;
+var shift;
 
 var bullets;
 var fireRate = 100;
@@ -115,28 +101,24 @@ var nextFire = 0;
 function create () {
 
     //  Resize our game world to be a 2000 x 2000 square
-    game.world.setBounds(-1000, -1000, 2000, 2000);
+    game.world.setBounds(-1000, -1000, 5000, 5000);
 
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+    land = game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     land.fixedToCamera = true;
 
     //  The base of our tank
     tank = game.add.sprite(50, 50, 'tank', 'ship');
-    tank.scale.x = -1;
+    //tank.scale.x = -1;
     tank.anchor.setTo(0.5, 0.5);
-    //tank.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
 
     //  This will force it to decelerate and limit its speed
     game.physics.enable(tank, Phaser.Physics.ARCADE);
-    tank.body.drag.set(0.2);
-    tank.body.maxVelocity.setTo(400, 400);
+    tank.body.drag.set(0.5);
+    tank.body.maxVelocity.setTo(600, 600);
     tank.body.collideWorldBounds = true;
-
-    //  Finally the turret that we place on-top of the tank body
-    //turret = game.add.sprite(0, 0, 'tank', 'turret');
-    //turret.anchor.setTo(0.3, 0.5);
-
+    tank.body.rotation.set
+    tank.angle = 270;
     //  The enemies bullet group
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
@@ -159,9 +141,6 @@ function create () {
         enemies.push(new EnemyTank(i, game, tank, enemyBullets));
     }
 
-    //  A shadow below our tank
-    shadow = game.add.sprite(0, 0, 'tank', 'shadow');
-    shadow.anchor.setTo(0.5, 0.5);
 
     //  Our bullet group
     bullets = game.add.group();
@@ -184,25 +163,25 @@ function create () {
     }
 
     tank.bringToTop();
-    //turret.bringToTop();
 
-    logo = game.add.sprite(0, 200, 'logo');
-    logo.fixedToCamera = true;
+//    logo = game.add.sprite(0, 200, 'logo');
+//    logo.fixedToCamera = true;
 
-    game.input.onDown.add(removeLogo, this);
+//    game.input.onDown.add(removeLogo, this);
 
     game.camera.follow(tank);
-    game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
+    game.camera.deadzone = new Phaser.Rectangle(700, 400, 100, 100);
     game.camera.focusOnXY(0, 0);
 
-    cursors = game.input.keyboard.createCursorKeys();
+
+    cursors = game.input.keyboard.addKeys( { 'up': Phaser.KeyCode.W, 'down': Phaser.KeyCode.S, 'left': Phaser.KeyCode.A, 'right': Phaser.KeyCode.D } );
 
 }
 
 function removeLogo () {
 
     game.input.onDown.remove(removeLogo, this);
-    logo.kill();
+//    logo.kill();
 
 }
 
@@ -234,8 +213,14 @@ function update () {
 
     if (cursors.up.isDown)
     {
-        //  The speed we'll travel at
-        currentSpeed = 300;
+        if(cursors.up.shiftKey)
+        {
+            currentSpeed = 600;
+        }
+        else
+        {
+            currentSpeed = 300;
+        }
     }
     else
     {
@@ -254,14 +239,6 @@ function update () {
     land.tilePosition.y = -game.camera.y;
 
     //  Position all the parts and align rotations
-    shadow.x = tank.x;
-    shadow.y = tank.y;
-    shadow.rotation = tank.rotation;
-
-    //turret.x = tank.x;
-    //turret.y = tank.y;
-
-    //turret.rotation = game.physics.arcade.angleToPointer(turret);
 
     if (game.input.activePointer.isDown)
     {
