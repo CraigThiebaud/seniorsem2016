@@ -69,12 +69,16 @@ var game = new Phaser.Game(1900, 1050, Phaser.AUTO, 'phaser-example', { preload:
 function preload () {
 
     //game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
-    game.load.image('tank', 'assets/games/tanks/ship.png');
+    game.load.image('tank', 'assets/games/hardpoints/ship.png');
     game.load.image('enemy', 'assets/games/asteroids/ship.png');
     //game.load.image('logo', 'assets/games/tanks/logo.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
     game.load.image('earth', 'assets/games/tanks/scorched_earth.png');
     game.load.spritesheet('kaboom', 'assets/games/tanks/explosion.png', 64, 64, 23);
+
+    game.load.audio('kashmir', 'assets/audio/kashmir.mp3');
+    game.load.audio('wakeUp', 'assets/audio/wakeUp.mp3');
+    game.load.audio('thrusers', 'assets/audio/SoundEffects/rockets.mp3');
 
 }
 
@@ -106,6 +110,14 @@ function create () {
     //  Our tiled scrolling background
     land = game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     land.fixedToCamera = true;
+
+    music = game.add.audio('kashmir');
+    bossMusic = game.add.audio('wakeUp');
+    thrusters = game.add.audio('thrusters');
+
+    //
+
+    music.play();
 
     //  The base of our tank
     tank = game.add.sprite(50, 50, 'tank', 'ship');
@@ -173,8 +185,8 @@ function create () {
     game.camera.deadzone = new Phaser.Rectangle(700, 400, 100, 100);
     game.camera.focusOnXY(0, 0);
 
-
     cursors = game.input.keyboard.addKeys( { 'up': Phaser.KeyCode.W, 'down': Phaser.KeyCode.S, 'left': Phaser.KeyCode.A, 'right': Phaser.KeyCode.D } );
+    game.sound.setDecodedCallback(thrusters, update, this);
 
 }
 
@@ -220,6 +232,7 @@ function update () {
         else
         {
             currentSpeed = 300;
+            //thrusters.play();
         }
     }
     else
@@ -277,9 +290,9 @@ function fire () {
 
         var bullet = bullets.getFirstExists(false);
 
-        //bullet.reset(turret.x, turret.y);
-
-        bullet.rotation = game.physics.arcade.moveToPointer(bullet, 1000, game.input.activePointer, 500);
+        bullet.reset(tank.x, tank.y);
+        bullet.angle = tank.angle;
+        game.physics.arcade.velocityFromAngle(tank.angle, 1000, bullet.body.velocity);
     }
 
 }
