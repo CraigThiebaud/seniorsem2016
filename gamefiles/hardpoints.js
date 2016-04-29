@@ -7,7 +7,7 @@ EnemyShip = function(index, game, player, bullets) {
     this.health = 3;
     this.player = player;
     this.bullets = bullets;
-    this.fireRate = 300;
+    this.fireRate = 800;
     this.nextFire = 0;
     this.alive = true;
 
@@ -79,7 +79,7 @@ function preload() {
 
     //game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
     game.load.image('ship', 'assets/games/hardpoints/ship.png');
-    game.load.image('enemy', 'assets/games/asteroids/ship.png');
+    game.load.image('enemy', 'assets/games/hardpoints/temp.png');
     //game.load.image('logo', 'assets/games/tanks/logo.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
     game.load.image('earth', 'assets/skies/deep-space.jpg');
@@ -238,7 +238,7 @@ function update() {
 
     if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
         if(currentSpeed >= 300){
-            ship.angle -= 575/currentSpeed;
+            ship.angle -= 600/currentSpeed;
         }
         else {
             ship.angle -= 2;
@@ -246,7 +246,7 @@ function update() {
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
         if(currentSpeed >= 300){
-            ship.angle += 575/currentSpeed;
+            ship.angle += 600/currentSpeed;
         }
         else {
             ship.angle += 2;
@@ -256,7 +256,7 @@ function update() {
     if (game.input.keyboard.isDown(Phaser.Keyboard.W)) {
         if (game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)) {
             if(currentSpeed < 300) {
-                currentSpeed += 10;
+                currentSpeed += 7;
                 //thrusters.play();
                 flame.angle = ship.angle - 90;
                 flame.x = ship.x;
@@ -314,7 +314,12 @@ function update() {
     }
     else {
         if (currentSpeed > 0) {
-            currentSpeed -= 2;
+            if(game.input.keyboard.isDown(Phaser.Keyboard.S)) {
+                currentSpeed -= 7;
+            }
+            else {
+                currentSpeed -= 2;
+            }
         }
         thrusters.stop();
         flame.visible = false;
