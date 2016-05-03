@@ -345,14 +345,14 @@ function create() {
     land.fixedToCamera = true;
 
     music = game.add.audio('kashmir', 5);
-    bossMusic = game.add.audio('wakeUp');
+    bossMusic = game.add.audio('wakeUp', 5);
     thrusters = game.add.audio('thrusters');
     primaryWeapon = game.add.audio('primaryWeapon');
     explosion = game.add.audio('explosion', 2);
 
     //
 
-    music.play();
+    //music.play();
 
     //  The base of our ship
     ship = game.add.sprite(50, 50, 'ship', 'ship');
@@ -492,27 +492,27 @@ function update() {
         else if(waveNo == 3) {
             //TODO: build wave 3/intro boss (music change happens here most likely)
             music.stop();
-            bossMusic.play();
+            //bossMusic.play();
         }
         else {
             //TODO: GAME OVER SHIT GOES HERE
         }
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+    if (cursors.left.isDown) {
         if(currentSpeed >= 300){
-            ship.angle -= 600/currentSpeed;
+            ship.angle -= 1200/currentSpeed;
         }
         else {
-            ship.angle -= 2;
+            ship.angle -= 7;
         }
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+    else if (cursors.right.isDown) {
         if(currentSpeed >= 300){
-            ship.angle += 600/currentSpeed;
+            ship.angle += 1200/currentSpeed;
         }
         else {
-            ship.angle += 2;
+            ship.angle += 7;
         }
     }
 
@@ -588,11 +588,11 @@ function update() {
         flame.visible = false;
     }
 
-    if (cursors.left.isDown) {
-        game.physics.arcade.velocityFromAngle(ship.angle - 90, 200, ship.body.velocity);
+    if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+        game.physics.arcade.velocityFromAngle(ship.angle - 90, 200 + currentSpeed, ship.body.velocity);
     }
-    if(cursors.right.isDown) {
-        game.physics.arcade.velocityFromAngle(ship.angle + 90, 200, ship.body.velocity);
+    if(game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+        game.physics.arcade.velocityFromAngle(ship.angle + 90, 200 + currentSpeed, ship.body.velocity);
     }
 
     if (currentSpeed > 0) {
