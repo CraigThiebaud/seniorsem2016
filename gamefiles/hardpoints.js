@@ -1,25 +1,79 @@
-EnemyShip = function(index, game, player, bullets) {
+EnemyShip = function(index, game, player, bullets, shipClass, argX, argY) {
 
-    var x = game.world.randomX;
-    var y = game.world.randomY;
-
+    var x = argX;
+    var y = argY;
+    var vessel = shipClass;
+    var inorbit = 'bleep';
     this.game = game;
-    this.health = 3;
     this.player = player;
     this.bullets = bullets;
-    this.fireRate = 800;
+
     this.nextFire = 0;
     this.alive = true;
 
-    this.ship = game.add.sprite(x, y, 'enemy', 'ship');
+
+
+
+
+    if(vessel === 'fighter'){
+        this.fireRate = 550;
+        this.health = 3;
+
+        this.ship = game.add.sprite(x, y, 'fighter', 'ship');
+
+        game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.body.immovable = false;
+        this.ship.body.collideWorldBounds = true;
+        this.ship.body.bounce.setTo(1, 1);
+
+
+    }
+    else if(vessel === 'tank'){
+        this.fireRate = 900;
+        this.health = 13;
+
+        this.ship = game.add.sprite(x, y, 'tank', 'tanks');
+
+
+        game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.body.immovable = true;
+        this.ship.body.collideWorldBounds = true;
+        this.ship.body.bounce.setTo(1, 1);
+
+    }
+    else if(vessel === 'carrier'){
+        this.fireRate = 1500;
+        this.health = 20;
+
+        this.ship = game.add.sprite(x, y, 'carrier', 'ship');
+
+
+
+        game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.body.immovable = true;
+        this.ship.body.collideWorldBounds = true;
+        this.ship.body.bounce.setTo(1, 1);
+    }
+    else if(vessel === 'drone'){
+        this.fireRate = 500;
+        this.health = 1;
+
+        this.ship = game.add.sprite(x, y, 'drone', 'ship');
+        this.ship.scale.x = 0.5;
+        this.ship.scale.y = 0.5;
+
+        game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.body.immovable = false;
+        this.ship.body.collideWorldBounds = true;
+        this.ship.body.bounce.setTo(1, 1);
+        this.ship.body.setSize(this.ship.width, this.ship.height);
+    }
+    this.ship.name = index.toString();
+
 
     this.ship.anchor.set(0.5);
 
-    this.ship.name = index.toString();
-    game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-    this.ship.body.immovable = false;
-    this.ship.body.collideWorldBounds = true;
-    this.ship.body.bounce.setTo(1, 1);
+
 
     this.ship.angle = game.rnd.angle();
 
@@ -45,24 +99,165 @@ EnemyShip.prototype.damage = function() {
 }
 
 EnemyShip.prototype.update = function() {
+    var anglePlayer = this.game.physics.arcade.angleBetween(this.ship, this.player);
 
-    if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 300) {
-        game.physics.arcade.moveToObject(this.ship, this.player, 100);
+    if(this.ship.key === 'fighter') {
+
+        /*if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 200) {
+            game.physics.arcade.moveToObject(this.ship, this.player, 100);
+            this.ship.rotation = anglePlayer;
+
+        }
+        else {
+            if(this.ship.pivot.x == 0){
+                inOrbit++;
+            }
+            if(!this.alive){
+                inOrbit--;
+            }
+
+            this.ship.anchor.setTo(0.5, 0.5);
+            this.ship.body.offset.setTo(0.5 * this.ship.body.width, 0.5* this.ship.body.length);
+            this.ship.pivot.x = 200;
+
+
+            this.ship.x = this.player.x;
+            this.ship.y = this.player.y;
+            this.ship.angle += 0.2 * inOrbit;
+
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
+                var bullet = this.bullets.getFirstDead();
+                bullet.reset(this.ship.body.x, this.ship.body.y);
+                bullet.angle = this.ship.angle;
+                bullet.roatation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+
+        }
+        if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 400) {
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
+
+                var bullet = this.bullets.getFirstDead();
+
+                bullet.reset(this.ship.x, this.ship.y);
+
+                bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+        }*/
+
+        if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 300) {
+            game.physics.arcade.moveToObject(this.ship, this.player, 200);
+        }
+
+        this.ship.rotation = this.game.physics.arcade.angleBetween(this.ship, this.player);
+
+        if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 400) {
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
+
+                var bullet = this.bullets.getFirstDead();
+                bullet.scale.x = 1;
+                bullet.scale.y = 1;
+                bullet.reset(this.ship.x, this.ship.y);
+
+                bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+        }
+
+
     }
-    //else {
+    else if(this.ship.key === 'tank') {
+        if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 500) {
+            game.physics.arcade.moveToObject(this.ship, this.player, 100);
+        }
 
-    //}
-    this.ship.rotation = this.game.physics.arcade.angleBetween(this.ship, this.player);
+        this.ship.rotation = this.game.physics.arcade.angleBetween(this.ship, this.player);
 
-    if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 400) {
-        if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-            this.nextFire = this.game.time.now + this.fireRate;
+        if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 600) {
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
 
-            var bullet = this.bullets.getFirstDead();
+                var bullet = this.bullets.getFirstDead();
+                bullet.scale.x = 2.0;
+                bullet.scale.y = 2.0;
+                bullet.reset(this.ship.x, this.ship.y);
 
-            bullet.reset(this.ship.x, this.ship.y);
+                bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+        }
+    }
+    else if(this.ship.key === 'carrier') {
+        if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 500) {
+            game.physics.arcade.moveToObject(this.ship, this.player, 100);
+        }
 
-            bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+        this.ship.rotation = this.game.physics.arcade.angleBetween(this.ship, this.player);
+
+        if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 600) {
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
+
+                var bullet = this.bullets.getFirstDead();
+                bullet.scale.x = 2.0;
+                bullet.scale.y = 2.0;
+                bullet.reset(this.ship.x, this.ship.y);
+
+                bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+        }
+        carrierPresent = true;
+    }
+    else if(this.ship.key === 'drone') {
+        if(this.game.physics.arcade.distanceBetween(this.ship, this.player) > 200) {
+            game.physics.arcade.moveToObject(this.ship, this.player, 300);
+            this.ship.rotation = anglePlayer;
+
+        }
+        else {
+            if(this.ship.pivot.x == 0){
+                inOrbit++;
+            }
+            if(!this.alive){
+                inOrbit--;
+            }
+
+            if(inOrbit > 30){
+                console.log('here');
+            }
+            this.ship.anchor.setTo(0.5, 0.5);
+            this.ship.body.offset.setTo(0.5 * this.ship.body.width, 0.5* this.ship.body.length);
+            this.ship.pivot.x = 400;
+
+
+            this.ship.x = this.player.x;
+            this.ship.y = this.player.y;
+            this.ship.angle += 0.2 * inOrbit;
+
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                var tempFire = this.fireRate - (inOrbit * 5);
+                this.nextFire = this.game.time.now + tempFire;
+                var bullet = this.bullets.getFirstDead();
+                bullet.scale.x = 0.5;
+                bullet.scale.y = 0.5;
+                bullet.reset(this.ship.body.x, this.ship.body.y);
+                bullet.angle = this.ship.angle;
+                bullet.roatation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
+
+        }
+        if (this.game.physics.arcade.distanceBetween(this.ship, this.player) < 400) {
+            if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+                this.nextFire = this.game.time.now + this.fireRate;
+
+                var bullet = this.bullets.getFirstDead();
+                bullet.scale.x = 0.5;
+                bullet.scale.y = 0.5;
+
+                bullet.reset(this.ship.x, this.ship.y);
+
+                bullet.rotation = this.game.physics.arcade.moveToObject(bullet, this.player, 500);
+            }
         }
     }
 
@@ -79,7 +274,10 @@ function preload() {
 
     //game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
     game.load.image('ship', 'assets/games/hardpoints/ship.png');
-    game.load.image('enemy', 'assets/games/hardpoints/temp.png');
+    game.load.image('fighter', 'assets/games/hardpoints/fighter.png');
+    game.load.image('tank', 'assets/games/hardpoints/tank.png');
+    game.load.image('carrier', 'assets/games/hardpoints/carrier.png');
+    game.load.image('drone', 'assets/games/hardpoints/drone.png');
     //game.load.image('logo', 'assets/games/tanks/logo.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
     game.load.image('earth', 'assets/skies/deep-space.jpg');
@@ -101,12 +299,27 @@ var land;
 var ship;
 var flame;
 
+var orbit;
+
 var enemies;
 var enemyBullets;
-var enemiesTotal = 0;
+var tankShot;
 var enemiesAlive = 0;
-var explosions;
-
+//var tankCount = 0;
+//var fighterCount = 0;
+//var carrierCount = 0;
+//var droneCount = 0;
+//var explosions;
+var waveNo = 1;
+var wave = {
+    "fighters": 15,
+    "tanks": 5,
+    "carriers": 1,
+    "drones": 25,
+};
+var totalEnemies = wave.fighters + wave.tanks + wave.carriers + wave.drones;
+var carrierPresent = false;
+var inOrbit = 0;
 //var logo;
 
 var currentSpeed = 0;
@@ -157,7 +370,7 @@ function create() {
     ship.body.collideWorldBounds = true;
     //ship.body.rotation.set;
     ship.angle = 270;
-    //  The enemies bullet group
+    //  The fighter bullet group
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -168,14 +381,31 @@ function create() {
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
 
+    //tank bullet group
+
+    //carrier bullet group
+
+    //drone bullet group
+
     //  Create some baddies to waste :)
     enemies = [];
 
-    enemiesTotal = 20;
     enemiesAlive = 20;
-
-    for (var i = 0; i < enemiesTotal; i++) {
-        enemies.push(new EnemyShip(i, game, ship, enemyBullets));
+    var currentTotal;
+    for (var i = 0; i < wave["fighters"]; i++) {
+        enemies.push(new EnemyShip(i, game, ship, enemyBullets, 'fighter', game.world.randomX, game.world.randomY));
+    }
+    currentTotal = enemies.length;
+    for(var i = currentTotal; i < wave["tanks"] + currentTotal; i++) {
+        enemies.push(new EnemyShip(i, game, ship, enemyBullets, 'tank', game.world.randomX, game.world.randomY));
+    }
+    currentTotal = enemies.length;
+    for(var i = currentTotal; i < wave["carriers"] + currentTotal; i++) {
+        enemies.push(new EnemyShip(i, game, ship, enemyBullets, 'carrier', game.world.randomX, game.world.randomY));
+    }
+    currentTotal = enemies.length;
+    for(var i = currentTotal; i < wave["drones"] + currentTotal; i++) {
+        enemies.push(new EnemyShip(i, game, ship, enemyBullets, 'drone', game.world.randomX, game.world.randomY));
     }
 
 
@@ -208,9 +438,10 @@ function create() {
     game.camera.follow(ship);
     game.camera.deadzone = new Phaser.Rectangle(900, 400, 100, 200);
     game.camera.focusOnXY(0, 0);
+    ship.body.setSize(50, 150);
 
     cursors = game.input.keyboard.createCursorKeys();
-    game.sound.setDecodedCallback([thrusters, primaryWeapon, explosion], update, this);
+    game.sound.setDecodedCallback([thrusters, primaryWeapon, explosion, music, bossMusic], update, this);
 
 }
 
@@ -230,9 +461,41 @@ function update() {
     for (var i = 0; i < enemies.length; i++) {
         if (enemies[i].alive) {
             enemiesAlive++;
+            for(var j = 0; j < enemies.length; j++){
+                if(i != j){
+                    game.physics.arcade.collide(enemies[i].ship, enemies[j].ship);
+                }
+            }
             game.physics.arcade.collide(ship, enemies[i].ship);
             game.physics.arcade.overlap(bullets, enemies[i].ship, bulletHitEnemy, null, this);
             enemies[i].update();
+        }
+        else{
+
+            if(enemies[i].ship.key === 'fighter') {
+
+            }
+            else if(enemies[i].ship.key === 'tank') {
+            }
+            else if(enemies[i].ship.key === 'carrier') {
+            }
+            else if(enemies[i].ship.key === 'drone') {
+            }
+        }
+
+    }
+    if(enemiesAlive == 0) {
+        waveNo++;
+        if(waveNo == 2) {
+            //TODO: build wave 2
+        }
+        else if(waveNo == 3) {
+            //TODO: build wave 3/intro boss (music change happens here most likely)
+            music.stop();
+            bossMusic.play();
+        }
+        else {
+            //TODO: GAME OVER SHIT GOES HERE
         }
     }
 
@@ -362,7 +625,7 @@ function bulletHitEnemy(ship, bullet) {
 
     if (destroyed) {
         var explosionAnimation = explosions.getFirstExists(false);
-        explosionAnimation.reset(ship.x, ship.y);
+        explosionAnimation.reset(0.5* ship.body.width + ship.body.x, 0.5 * ship.body.height + ship.body.y);
         explosionAnimation.play('kaboom', 30, false, true);
         explosion.play();
     }
@@ -387,7 +650,7 @@ function fire() {
 
 function render() {
 
-    game.debug.text('Active Bullets: ' + bullets.countLiving() + ' / ' + bullets.length, 32, 32);
-    //game.debug.text('Enemies: ' + enemiesAlive + ' / ' + enemiesTotal, 32, 32);
+    //game.debug.text('Active Bullets: ' + bullets.countLiving() + ' / ' + bullets.length, 32, 32);
+    game.debug.text('Enemies: ' + enemiesAlive + ' / ' + totalEnemies, 32, 32);
 
 }
