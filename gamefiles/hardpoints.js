@@ -312,10 +312,10 @@ var enemiesAlive = 0;
 //var explosions;
 var waveNo = 1;
 var wave = {
-    "fighters": 15,
-    "tanks": 5,
-    "carriers": 1,
-    "drones": 25,
+    "fighters": 0,
+    "tanks": 0,
+    "carriers": 0,
+    "drones": 0,
 };
 var totalEnemies = wave.fighters + wave.tanks + wave.carriers + wave.drones;
 var carrierPresent = false;
@@ -452,6 +452,8 @@ function removeLogo() {
 
 }
 
+
+
 function update() {
 
     game.physics.arcade.overlap(enemyBullets, ship, bulletHitPlayer, null, this);
@@ -518,6 +520,7 @@ function update() {
 
     if (game.input.keyboard.isDown(Phaser.Keyboard.W)) {
         if (game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)) {
+
             if(currentSpeed < 300) {
                 currentSpeed += 7;
                 //thrusters.play();
@@ -588,15 +591,20 @@ function update() {
         flame.visible = false;
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
-        game.physics.arcade.velocityFromAngle(ship.angle - 90, 200 + currentSpeed, ship.body.velocity);
-    }
-    if(game.input.keyboard.isDown(Phaser.Keyboard.D)) {
-        game.physics.arcade.velocityFromAngle(ship.angle + 90, 200 + currentSpeed, ship.body.velocity);
-    }
-
     if (currentSpeed > 0) {
+      if(game.input.keyboard.isDown(Phaser.Keyboard.A)){
+        game.physics.arcade.velocityFromAngle(ship.angle - 45, currentSpeed, ship.body.velocity);
+      }
+      else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+        game.physics.arcade.velocityFromAngle(ship.angle + 45, currentSpeed, ship.body.velocity);
+      }
+      else {
         game.physics.arcade.velocityFromAngle(ship.angle, currentSpeed, ship.body.velocity);
+      }
+
+
+
+
     }
 
     land.tilePosition.x = -game.camera.x;
@@ -608,6 +616,8 @@ function update() {
         //  Boom!
         fire();
     }
+
+
 
 }
 
